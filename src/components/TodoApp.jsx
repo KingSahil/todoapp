@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../supabaseClient'
+import { supabase, isSupabaseConfigured } from '../supabaseClient'
 import { fetchTodos, createTodo, updateTodo, deleteTodo, subscribeToTodos } from '../services/todoService'
 
 function TodoItem({ todo, onToggle, onDelete }) {
@@ -71,8 +71,10 @@ export default function TodoApp() {
     try {
       await createTodo(text.trim(), user.id)
       setText('')
-      // real-time will sync the list
+      // refresh list immediately in case realtime isn't active
+      fetchTodos(user.id).then(setTodos).catch(err => { setMessage(err.message); console.error(err) })
     } catch (err) {
+      console.error(err)
       setMessage(err.message)
     } finally {
       setLoading(false)
@@ -84,6 +86,7 @@ export default function TodoApp() {
     try {
       await updateTodo(id, { completed })
     } catch (err) {
+      console.error(err)
       setMessage(err.message)
     }
   }
@@ -93,6 +96,7 @@ export default function TodoApp() {
     try {
       await deleteTodo(id)
     } catch (err) {
+      console.error(err)
       setMessage(err.message)
     }
   }
@@ -103,6 +107,7 @@ export default function TodoApp() {
       const completedIds = todos.filter(t => t.completed).map(t => t.id)
       await Promise.all(completedIds.map(id => deleteTodo(id)))
     } catch (err) {
+      console.error(err)
       setMessage(err.message)
     }
   }
@@ -113,7 +118,7 @@ export default function TodoApp() {
     if (!email.trim()) return setMessage('Enter an email')
     setLoading(true)
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim() })
-    if (error) setMessage(error.message)
+    if (error) { console.error(error); setMessage(error.message) }
     else setMessage('Check your email for the sign-in link')
     setLoading(false)
   }
@@ -124,6 +129,12 @@ export default function TodoApp() {
 
   return (
     <div className="todo-app">
+      {!isSupabaseConfigured && (
+        <div className="env-warning" style={{background:'#fff4e5',border:'1px solid #ffd49a',padding:'8px',borderRadius:'6px',marginBottom:'12px'}}>
+          <strong>Supabase not configured.</strong> Copy <code>.env.example</code> to <code>.env.local</code>, fill <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>, then restart the dev server.
+        </div>
+      )}
+
       {!user ? (
         <div className="auth">
           <h3>Sign in to sync your todos</h3>
@@ -137,6 +148,8 @@ export default function TodoApp() {
           <button onClick={signOut}>Sign out</button>
         </div>
       )}
+
+      {message && <p className="message">{message}</p>}
 
       {user && (
         <>
