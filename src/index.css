@@ -16,9 +16,15 @@
 .filters .active{background:#eef2ff;color:var(--accent)}
 .actions{display:flex;align-items:center;gap:8px}
 .actions span{color:var(--muted)}
+<<<<<<< HEAD
 .actions .clear-completed{margin-left:8px;padding:6px 10px;border-radius:6px;border:1px solid #e6e6e6;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
 .actions .clear-completed:hover:not(:disabled){background:#f3f4f6}
 .actions .clear-completed:disabled{opacity:0.6;cursor:not-allowed}
+=======
+.actions .clear{background:transparent;border:1px solid transparent;padding:6px 10px;border-radius:6px;color:var(--muted);cursor:pointer;transition:all .15s}
+.actions .clear:hover:not(:disabled){background:#f3f4f6;color:#111;border-color:#e6e6e6}
+.actions .clear:disabled{opacity:.6;cursor:default}
+>>>>>>> f72aa5cbb8f283f9a67d5f202558a7d0db632fbb
 .empty{text-align:center;color:var(--muted);padding:6px}
 
 /* Supabase auth styles */
